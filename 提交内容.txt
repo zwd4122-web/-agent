@@ -1,0 +1,26 @@
+潮汕旅游 Multi-Agent（Android/Kotlin，Gradle 多模块工程）
+
+【实现方式】
+工程分两个模块：:agents 为纯 JVM/Kotlin 库，承载全部 Agent 能力（不含任何 Android API，可脱离界面复用）；:app 为 Android 交互入口，只负责收集输入和展示结果。构建产物 app-debug.apk。
+
+【四类 Agent 及职责】
+1. 用户代理 UserProxyAgent：接收用户输入的潮汕旅游文本，按请求类型（taskType）调度其余三个 Agent，整合结果返回统一的 MultiAgentResponse，其中 trace 字段记录调用链（每个 Agent 的名称、任务、状态、耗时、输入输出摘要）。
+2. 校对专家 ProofreaderAgent：检查错别字（潮汕高频错误词典 45 条，如"潮洲→潮州""广济搂→广济楼"）、语病（虚词重复、"目的是为了"语义重复、转折连词缺呼应、超长句）、标点（半角符号、重复标点、引号配对、句末缺标点）。返回校对后文本 + 问题清单（每条注明原文、建议、修改说明、是否已自动修正），checksPerformed 记录实际执行过的规则，未检查不会声称已校对；无问题时也返回明确结论。
+3. 归档专家 CategorizerAgent：基于潮汕领域词表生成标签（潮州/汕头/美食/交通/牛肉火锅/英歌舞等），tagEvidence 记录每个标签命中的原文关键词，保证分类可追溯；笔记本分类采用加权打分（意图类强特征词 3 分、实体名 1 分），结果真实写入 NotebookRepository 并可查回。
+4. 行动秘书 ActionSecretaryAgent：抽取式核心摘要（按领域词权重+位置+句长选关键句，不生成原文外内容）；TODO 识别必须同时命中待办线索词（记得/需要/提前/预约等，或"- [ ]""待办："清单标记）和动作动词，纯描述性句子不会产生待办，不凭空编造任务。
+
+【可调用、可复用、输入输出明确】
+统一入口 ChaoshanTravelAgentFacade.execute(text)，返回结构化 MultiAgentResponse（原始输入、workingText、三个 Agent 各自结果、trace 调用链、错误清单、总状态）。
+各 Agent 独立入口：facade.proofread(text) / categorize(text) / extractActions(text)，也可直接构造 Agent 并注入自定义笔记本存储。全部返回结构化对象，调用方不依赖任何界面。
+
+【协同机制】
+顺序调度且数据流清晰：原文 → 校对专家 → 校对后文本（workingText）传给归档专家与行动秘书 → 整合输出。单个 Agent 失败不中断流程，整体状态为 PARTIAL_SUCCESS，全部失败为 FAILED，错误进入 errors，不把失败伪装成成功；空白输入直接返回 FAILED 且不调度任何 Agent。
+
+【验证结果】
+./gradlew clean build → BUILD SUCCESSFUL（含 lint）；单元测试 36 个全部通过（agents 模块 33 个 + app 模块 3 个），覆盖四类 Agent 实现、校对/归档/摘要待办、统一与独立入口、无待办不编造、异常输入返回可识别失败等；APK 已生成。测试可复现：解压源码后执行 ./gradlew :agents:test :app:test。
+
+【诚实说明】
+未接入大模型，四类 Agent 均为规则 + 领域词典的确定性实现（同输入同输出，结果可验证）；笔记本为进程内内存存储，storageDescription 字段如实标注，不虚构持久化能力。
+
+【附件说明】
+完整源码见压缩包 ChaoshanTravelAgents-source.zip（含 README.md，内附数据结构、调用入口与协同流程说明）。

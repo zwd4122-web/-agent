@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">潮汕旅游 Multi-Agent</string>
+    <string name="input_hint">请输入潮汕旅游相关文本（景点介绍 / 旅行记录 / 游玩计划 / 备忘）</string>
+    <string name="sample_text">明天要去潮洲的牌坊街,记得提前订牛肉火锅店，还要订汕头的高铁票。</string>
+    <string name="btn_full">统一入口：完整协同</string>
+    <string name="btn_proofread">仅校对</string>
+    <string name="btn_categorize">仅归档</string>
+    <string name="btn_actions">仅摘要待办</string>
+    <string name="btn_sample">填入示例</string>
+    <string name="result_hint">处理结果会显示在这里</string>
+</resources>
