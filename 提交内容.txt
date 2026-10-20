@@ -24,3 +24,7 @@
 
 【附件说明】
 完整源码见压缩包 ChaoshanTravelAgents-source.zip（含 README.md，内附数据结构、调用入口与协同流程说明）。
+
+【代码仓库】
+https://github.com/zwd4122-web/-agent
+（main 分支，含全部源码与 36 个单元测试；执行 ./gradlew :agents:test :app:test 可复现全部测试通过）
