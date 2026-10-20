@@ -16,5 +16,9 @@ captures/
 *.aab
 *.zip
 
+# 本地渲染的提交截图与脚本
+截图*.png
+render_shots.py
+
 # 工具目录
 .workbuddy/
